@@ -1,2 +1,2 @@
-# tijay-music
+# TJ-music
 Своя яндекс музыка

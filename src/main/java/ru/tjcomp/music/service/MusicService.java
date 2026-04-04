@@ -1,4 +1,4 @@
-package ru.tjcomp.music;
+package ru.tjcomp.music.service;
 
 import org.springframework.stereotype.Service;
 

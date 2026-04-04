@@ -1,0 +1,179 @@
+openapi: 3.0.3
+
+info:
+  title: TJ-Music API
+  version: 1.0.0
+  description: api для работы с сервером TJ-Music
+
+tags:
+  - name: Users
+  - name: Playlists
+  - name: Tracks
+
+paths:
+
+  # API для работы с пользователями
+  /api/users:
+    get:
+      tags:
+        - Users
+      description: Получить список всех пользователей
+      responses:
+        '200':
+          description: Вернуть список всех пользователей
+  /api/users/{id}:
+    get:
+      tags:
+        - Users
+      description: Получить пользователя по id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Вернуть найденного пользователя
+        '404':
+          description: Пользователь не найден
+  /api/register:
+    post:
+      tags:
+        - Users
+      description: Регистрация пользователя
+      requestBody:
+        required: true
+        content:
+          application/json: {}
+      responses:
+        '201':
+          description: Пользователь зарегистрирован, вернуть пользователя
+        '409':
+          description: Пользователь уже зарегистрирован ранее
+  /api/users/{id}/playlists:
+    get:
+      tags:
+        - Users
+        - Playlists
+      description: Получить все плейлисты пользователя
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Вернуть список плейлистов пользователя
+        '404':
+          description: Пользователь не найден
+
+  # API для работы с плейлистами
+  /api/playlists:
+    get:
+      tags:
+        - Playlists
+      description:
+        Получить список всех плейлистов
+        Потенциально нужно для реализации поиска плейлистов
+      responses:
+        '200':
+          description: Вернуть список всех плейлистов (публичных)
+    post:
+      tags:
+        - Playlists
+      description: Создать плейлист
+      requestBody:
+        required: true
+        content:
+          application/json: {}
+      responses:
+        '201':
+          description: Плейлист создан
+  /api/playlists/{id}:
+    get:
+      tags:
+        - Playlists
+      description: Получить конкретный плейлист
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Вернуть конкретный плейлист
+        '404':
+          description: Плейлист не найден
+    patch:
+      tags:
+        - Playlists
+      description: Изменить плейлист
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json: {}
+      responses:
+        '200':
+          description: Плейлист изменён
+        '404':
+          description: Плейлист не найден
+  /api/playlists/{id}/tracks:
+    get:
+      tags:
+        - Playlists
+        - Tracks
+      description: Открыть треки плейлиста
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Вернуть список треков из плейлиста
+        '404':
+          description: Плейлист не найден
+
+  # API для работы с плейлистами
+  /api/tracks/{id}:
+    get:
+      tags:
+        - Tracks
+      description: Получить информацию про конкретный трек
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Вернуть информацию про конкретный трек
+        '404':
+          description: Трек не найден
+  /api/tracks/{id}/stream:
+    get:
+      tags:
+        - Tracks
+      description: Получить бинарный поток самого трека. Пока непонятно, как конкретно работать с передачей самих треков
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Вернуть поток самого трека
+        '404':
+          description: Трек не найден

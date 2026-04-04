@@ -10,6 +10,7 @@ import ru.tjcomp.music.service.HealthCheckService;
 public class HealthCheckController {
 
     private static final Logger log = LoggerFactory.getLogger(HealthCheckController.class);
+
     private final HealthCheckService healthCheckService;
 
     public HealthCheckController(HealthCheckService healthCheckService){

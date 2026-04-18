@@ -1,5 +1,6 @@
 package ru.tjcomp.music.controller;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -25,8 +26,8 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping()
-    public ResponseEntity<UserDto> addUser(@RequestBody UserDto userToAdd) {
+    @PostMapping
+    public ResponseEntity<UserDto> addUser(@RequestBody @Valid UserDto userToAdd) {
         log.info("createUser run");
         return ResponseEntity.status(201).body(userService.createUser(userToAdd));
     }
@@ -37,17 +38,18 @@ public class UserController {
         return ResponseEntity.status(200).body(userService.getUser(id));
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<UserDto>> getUser() {
         log.info("getUser run");
         return ResponseEntity.status(200).body(userService.getAllUsers());
     }
 
-    @PutMapping()
-    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userToUpdate) {
+    @PutMapping("{id}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id,
+        @RequestBody @Valid UserDto userToUpdate) {
         log.info("updateUser run");
-        userService.updateUser(userToUpdate);
-        return ResponseEntity.status(303).header("Redirection", "/success").build();
+        userService.updateUser(id, userToUpdate);
+        return ResponseEntity.status(303).header("Redirection", "/users/success").build();
     }
 
     @GetMapping("/success")

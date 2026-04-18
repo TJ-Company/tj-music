@@ -21,14 +21,14 @@ public class UserService {
         if (userRepository.existsByEmail(userToCreate.email())) {
             throw new IllegalArgumentException("Such an account already exists");
         }
-        var entityToSave = new User(
+        User entityToSave = new User(
             null,
             userToCreate.username(),
             userToCreate.email(),
             userToCreate.passwordHash(),
             userToCreate.role(),
             userToCreate.createdAt());
-        var savedEntity = userRepository.save(entityToSave);
+        User savedEntity = userRepository.save(entityToSave);
         return toUserDto(savedEntity);
     }
 
@@ -43,19 +43,19 @@ public class UserService {
         return usersToGet.stream().map(this::toUserDto).toList();
     }
 
-    public UserDto updateUser(UserDto userToUpdate) {
-        var userEntity = userRepository.findById(userToUpdate.id())
+    public UserDto updateUser(Long id, UserDto userToUpdate) {
+        User userEntity = userRepository.findById(id)
             .orElseThrow(
-                () -> new EntityNotFoundException("Not found user by id = " + userToUpdate.id()));
+                () -> new EntityNotFoundException("Not found user by id = " + id));
 
-        var entityToSave = new User(
+        User entityToSave = new User(
             userEntity.getId(),
             userToUpdate.username(),
             userToUpdate.email(),
             userToUpdate.passwordHash(),
             userToUpdate.role(),
             userToUpdate.createdAt());
-        var updatedUser = userRepository.save(entityToSave);
+        User updatedUser = userRepository.save(entityToSave);
         return toUserDto(updatedUser);
     }
 

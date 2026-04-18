@@ -1,22 +1,22 @@
 package ru.tjcomp.music.dto;
 
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
-import ru.tjcomp.music.enums.Role;
 
-public record UserDto(
+public record TrackDto(
     @Null
     Long id,
+    @Null
+    Long userId,
     @NotNull
-    String username,
+    String title,
+    @Null
+    String filePath,
     @NotNull
-    String email,
-    @NotNull
-    String passwordHash,
-    @NotNull
-    Role role,
+    Long duration,
     @PastOrPresent
     LocalDate createdAt
 ) {

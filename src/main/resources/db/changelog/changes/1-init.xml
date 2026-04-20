@@ -1,0 +1,149 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- Users -->
+    <changeSet id="users-table-init" author="wenatt">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="users"/>
+            </not>
+        </preConditions>
+        <createTable tableName="users">
+            <column name="id" type="int">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="username" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="email" type="varchar(255)"/>
+
+            <column name="password_hash" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="role" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="timestamp"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Tracks -->
+    <changeSet id="tracks-table-init" author="wenatt">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="tracks"/>
+            </not>
+        </preConditions>
+        <createTable tableName="tracks">
+            <column name="id" type="int">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="title" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="file_path" type="varchar(500)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="duration" type="int"/>
+
+            <column name="author_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="timestamp"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="tracks"
+                baseColumnNames="author_id"
+                constraintName="fk_tracks_author"
+                referencedTableName="users"
+                referencedColumnNames="id"/>
+    </changeSet>
+
+    <!-- Playlists -->
+    <changeSet id="playlists-table-init" author="wenatt">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="playlists"/>
+            </not>
+        </preConditions>
+        <createTable tableName="playlists">
+            <column name="id" type="int">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="user_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_public" type="boolean"/>
+            <column name="is_favourite" type="boolean"/>
+            <column name="created_at" type="timestamp"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="playlists"
+                baseColumnNames="user_id"
+                constraintName="fk_playlists_user"
+                referencedTableName="users"
+                referencedColumnNames="id"/>
+    </changeSet>
+
+    <!-- Playlist tracks -->
+    <changeSet id="playlist-tracks-table-init" author="wenatt">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="playlist_tracks"/>
+            </not>
+        </preConditions>
+        <createTable tableName="playlist_tracks">
+            <column name="track_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="playlist_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="added_at" type="timestamp"/>
+            <column name="order_index" type="int"/>
+        </createTable>
+
+        <addPrimaryKey
+                tableName="playlist_tracks"
+                columnNames="track_id, playlist_id"
+                constraintName="pk_playlist_tracks"/>
+
+        <addForeignKeyConstraint
+                baseTableName="playlist_tracks"
+                baseColumnNames="track_id"
+                constraintName="fk_playlist_tracks_track"
+                referencedTableName="tracks"
+                referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+                baseTableName="playlist_tracks"
+                baseColumnNames="playlist_id"
+                constraintName="fk_playlist_tracks_playlist"
+                referencedTableName="playlists"
+                referencedColumnNames="id"/>
+    </changeSet>
+
+
+</databaseChangeLog>

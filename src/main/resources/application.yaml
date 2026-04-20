@@ -1,6 +1,9 @@
 spring:
   application:
     name: music
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    enabled: true
 
 springdoc:
   swagger-ui:

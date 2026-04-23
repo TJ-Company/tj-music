@@ -44,7 +44,7 @@ public class UserController {
         return ResponseEntity.status(200).body(userService.getAllUsers());
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<UserDto> updateUser(@PathVariable Long id,
         @RequestBody @Valid UserDto userToUpdate) {
         log.info("updateUser run");

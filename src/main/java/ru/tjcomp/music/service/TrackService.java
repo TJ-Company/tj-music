@@ -19,13 +19,22 @@ public class TrackService {
     private final TrackRepository trackRepository;
 
     public TrackDto addTrack(Long userId, TrackDto trackToAdd) {
-        if (userId == null) {
+        User userToGet = validateTrackToAdd(userId, trackToAdd);
+        return saveTrack(userToGet, trackToAdd);
+    }
+
+    private User validateTrackToAdd(Long userId, TrackDto trackToAdd) {
+        if (trackToAdd.id() != null) {
             throw new IllegalArgumentException("Id should be empty");
         }
-
-        User userToGet = userRepository.findById(userId)
+        if (userId == null) {
+            throw new IllegalArgumentException("Id should not be empty");
+        }
+        return userRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException("Not found user by id = " + userId));
+    }
 
+    private TrackDto saveTrack(User userToGet, TrackDto trackToAdd) {
         Track trackToSave = new Track(
             null,
             userToGet,
@@ -33,13 +42,13 @@ public class TrackService {
             FILE_PATH,
             trackToAdd.duration(),
             trackToAdd.createdAt());
-        trackRepository.save(trackToSave);
+        trackToSave = trackRepository.save(trackToSave);
         return toTrackDto(trackToSave);
     }
 
-    public TrackDto getTrack(Long id) {
-        Track trackToGet = trackRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Not found track by id = " + id));
+    public TrackDto getTrack(Long trackId) {
+        Track trackToGet = trackRepository.findById(trackId)
+            .orElseThrow(() -> new EntityNotFoundException("Not found track by id = " + trackId));
         return toTrackDto(trackToGet);
     }
 
@@ -48,10 +57,10 @@ public class TrackService {
         return tracksToGet.stream().map(this::toTrackDto).toList();
     }
 
-    public TrackDto updateTrack(Long id, TrackDto trackToUpdate) {
-        Track trackEntity = trackRepository.findById(id)
+    public TrackDto updateTrack(Long trackId, TrackDto trackToUpdate) {
+        Track trackEntity = trackRepository.findById(trackId)
             .orElseThrow(
-                () -> new EntityNotFoundException("Not found track by id = " + id));
+                () -> new EntityNotFoundException("Not found track by id = " + trackId));
 
         Track entityToSave = new Track(
             trackEntity.getId(),
@@ -64,11 +73,11 @@ public class TrackService {
         return toTrackDto(updatedTrack);
     }
 
-    public void deleteTrack(Long id) {
-        if (!trackRepository.existsById(id)){
-            throw new EntityNotFoundException("Not found track by id = " + id);
+    public void deleteTrack(Long trackId) {
+        if (!trackRepository.existsById(trackId)){
+            throw new EntityNotFoundException("Not found track by id = " + trackId);
         }
-        trackRepository.deleteById(id);
+        trackRepository.deleteById(trackId);
     }
 
     private TrackDto toTrackDto(Track trackToSave) {

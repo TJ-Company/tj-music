@@ -24,10 +24,10 @@ public class TrackController {
     private final Logger log = LoggerFactory.getLogger(TrackController.class);
     private final TrackService trackService;
 
-    @PostMapping("/{id}")
-    public ResponseEntity<TrackDto> addTrack(@PathVariable Long id, @RequestBody @Valid TrackDto trackToAdd){
+    @PostMapping("/{userId}")
+    public ResponseEntity<TrackDto> addTrack(@PathVariable Long userId, @RequestBody @Valid TrackDto trackToAdd){
         log.info("addTrack run");
-        return ResponseEntity.status(201).body(trackService.addTrack(id, trackToAdd));
+        return ResponseEntity.status(201).body(trackService.addTrack(userId, trackToAdd));
     }
 
     @GetMapping("/{id}")
@@ -42,7 +42,7 @@ public class TrackController {
         return ResponseEntity.status(200).body(trackService.getAllTracks());
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<TrackDto> updateTrack(@PathVariable Long id,
         @RequestBody @Valid TrackDto trackToUpdate) {
         log.info("updateTrack run");

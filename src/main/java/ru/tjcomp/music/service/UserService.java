@@ -15,12 +15,20 @@ public class UserService {
     private final UserRepository userRepository;
 
     public UserDto createUser(UserDto userToCreate) {
+        validateUserToCreate(userToCreate);
+        return saveUser(userToCreate);
+    }
+
+    private void validateUserToCreate(UserDto userToCreate) {
         if (userToCreate.id() != null) {
             throw new IllegalArgumentException("Id should be empty");
         }
         if (userRepository.existsByEmail(userToCreate.email())) {
             throw new IllegalArgumentException("Such an account already exists");
         }
+    }
+
+    private UserDto saveUser(UserDto userToCreate) {
         User entityToSave = new User(
             null,
             userToCreate.username(),
@@ -32,9 +40,9 @@ public class UserService {
         return toUserDto(savedEntity);
     }
 
-    public UserDto getUser(Long id) {
-        User userToGet = userRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Not found user by id = " + id));
+    public UserDto getUser(Long userId) {
+        User userToGet = userRepository.findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException("Not found user by id = " + userId));
         return toUserDto(userToGet);
     }
 
@@ -43,10 +51,10 @@ public class UserService {
         return usersToGet.stream().map(this::toUserDto).toList();
     }
 
-    public UserDto updateUser(Long id, UserDto userToUpdate) {
-        User userEntity = userRepository.findById(id)
+    public UserDto updateUser(Long userId, UserDto userToUpdate) {
+        User userEntity = userRepository.findById(userId)
             .orElseThrow(
-                () -> new EntityNotFoundException("Not found user by id = " + id));
+                () -> new EntityNotFoundException("Not found user by id = " + userId));
 
         User entityToSave = new User(
             userEntity.getId(),
@@ -59,11 +67,11 @@ public class UserService {
         return toUserDto(updatedUser);
     }
 
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)){
-            throw new EntityNotFoundException("Not found user by id = " + id);
+    public void deleteUser(Long userId) {
+        if (!userRepository.existsById(userId)){
+            throw new EntityNotFoundException("Not found user by id = " + userId);
         }
-        userRepository.deleteById(id);
+        userRepository.deleteById(userId);
     }
 
     private UserDto toUserDto(User User) {

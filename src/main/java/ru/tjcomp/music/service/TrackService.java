@@ -21,11 +21,11 @@ public class TrackService {
     private final TrackRepository trackRepository;
 
     public TrackDto addTrack(Long userId, TrackDto trackToAdd) throws AccessDeniedException {
-        User userToGet = validateTrackInput(userId, trackToAdd);
+        User userToGet = validateInput(userId, trackToAdd);
         return saveTrack(userToGet, trackToAdd);
     }
 
-    private User validateTrackInput(Long userId, TrackDto trackToAdd) throws AccessDeniedException {
+    private User validateInput(Long userId, TrackDto trackToAdd) throws AccessDeniedException {
         if (trackToAdd.id() != null) {
             throw new IllegalArgumentException("Id should be empty");
         }

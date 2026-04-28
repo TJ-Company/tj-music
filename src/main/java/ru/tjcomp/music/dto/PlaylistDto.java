@@ -4,19 +4,18 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
-import ru.tjcomp.music.enums.Role;
 
-public record UserDto(
+public record PlaylistDto(
     @Null
     Long id,
+    @Null
+    Long userId,
     @NotNull
-    String username,
+    String name,
     @NotNull
-    String email,
+    Boolean isPublic,
     @NotNull
-    String passwordHash,
-    @NotNull
-    Role role,
+    Boolean isFavourite,
     @PastOrPresent
     LocalDateTime createdAt
 ) {

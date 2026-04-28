@@ -1,12 +1,14 @@
 package ru.tjcomp.music.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.tjcomp.music.dto.TrackDto;
 import ru.tjcomp.music.entity.Track;
 import ru.tjcomp.music.entity.User;
+import ru.tjcomp.music.enums.Role;
 import ru.tjcomp.music.repository.TrackRepository;
 import ru.tjcomp.music.repository.UserRepository;
 
@@ -18,30 +20,38 @@ public class TrackService {
     private final UserRepository userRepository;
     private final TrackRepository trackRepository;
 
-    public TrackDto addTrack(Long userId, TrackDto trackToAdd) {
-        User userToGet = validateTrackToAdd(userId, trackToAdd);
+    public TrackDto addTrack(Long userId, TrackDto trackToAdd) throws AccessDeniedException {
+        User userToGet = validateTrackInput(userId, trackToAdd);
         return saveTrack(userToGet, trackToAdd);
     }
 
-    private User validateTrackToAdd(Long userId, TrackDto trackToAdd) {
+    private User validateTrackInput(Long userId, TrackDto trackToAdd) throws AccessDeniedException {
         if (trackToAdd.id() != null) {
             throw new IllegalArgumentException("Id should be empty");
         }
         if (userId == null) {
             throw new IllegalArgumentException("Id should not be empty");
         }
-        return userRepository.findById(userId)
+
+        User user = userRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException("Not found user by id = " + userId));
+
+        if (user.getRole() == Role.USER){
+            throw new AccessDeniedException("The user is not an author");
+        } else {
+            return user;
+        }
     }
 
     private TrackDto saveTrack(User userToGet, TrackDto trackToAdd) {
-        Track trackToSave = new Track(
-            null,
-            userToGet,
-            trackToAdd.title(),
-            FILE_PATH,
-            trackToAdd.duration(),
-            trackToAdd.createdAt());
+        Track trackToSave = Track.builder()
+            .id(null)
+            .author(userToGet)
+            .title(trackToAdd.title())
+            .filePath(FILE_PATH)
+            .duration(trackToAdd.duration())
+            .createdAt(trackToAdd.createdAt())
+            .build();
         trackToSave = trackRepository.save(trackToSave);
         return toTrackDto(trackToSave);
     }
@@ -62,19 +72,21 @@ public class TrackService {
             .orElseThrow(
                 () -> new EntityNotFoundException("Not found track by id = " + trackId));
 
-        Track entityToSave = new Track(
-            trackEntity.getId(),
-            trackEntity.getUser(),
-            trackToUpdate.title(),
-            trackEntity.getFilePath(),
-            trackToUpdate.duration(),
-            trackToUpdate.createdAt());
+        Track entityToSave = Track.builder()
+            .id(trackEntity.getId())
+            .author(trackEntity.getAuthor())
+            .title(trackToUpdate.title())
+            .filePath(trackEntity.getFilePath())
+            .duration(trackToUpdate.duration())
+            .createdAt(trackToUpdate.createdAt())
+            .build();
+
         Track updatedTrack = trackRepository.save(entityToSave);
         return toTrackDto(updatedTrack);
     }
 
     public void deleteTrack(Long trackId) {
-        if (!trackRepository.existsById(trackId)){
+        if (!trackRepository.existsById(trackId)) {
             throw new EntityNotFoundException("Not found track by id = " + trackId);
         }
         trackRepository.deleteById(trackId);
@@ -83,7 +95,7 @@ public class TrackService {
     private TrackDto toTrackDto(Track trackToSave) {
         return new TrackDto(
             trackToSave.getId(),
-            trackToSave.getUser().getId(),
+            trackToSave.getAuthor().getId(),
             trackToSave.getTitle(),
             trackToSave.getFilePath(),
             trackToSave.getDuration(),

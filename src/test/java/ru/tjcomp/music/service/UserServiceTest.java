@@ -7,9 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
-import java.util.Optional;
-import org.junit.jupiter.api.Assertions;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -38,27 +36,28 @@ class UserServiceTest {
             "email",
             "password",
             Role.USER,
-            LocalDate.of(2026, 3, 21));
+            LocalDateTime.of(2026, 3, 21, 14, 12));
 
-        User resultUser = new User(
-            100L,
-            userToCreate.username(),
-            userToCreate.email(),
-            userToCreate.passwordHash(),
-            userToCreate.role(),
-            userToCreate.createdAt());
+        User expectedUser = User.builder()
+            .id(100L)
+            .username(userToCreate.username())
+            .email(userToCreate.email())
+            .passwordHash(userToCreate.passwordHash())
+            .role(userToCreate.role())
+            .createdAt(userToCreate.createdAt())
+            .build();
 
         when(userRepository.existsByEmail(any(String.class))).thenReturn(false);
-        when(userRepository.save(any(User.class))).thenReturn(resultUser);
+        when(userRepository.save(any(User.class))).thenReturn(expectedUser);
 
-        UserDto testingUser = userService.createUser(userToCreate);
+        UserDto actualUser = userService.createUser(userToCreate);
 
-        assertEquals(resultUser.getId(), testingUser.id());
-        assertEquals(resultUser.getUsername(), testingUser.username());
-        assertEquals(resultUser.getEmail(), testingUser.email());
-        assertEquals(resultUser.getPasswordHash(), testingUser.passwordHash());
-        assertEquals(resultUser.getRole(), testingUser.role());
-        assertEquals(resultUser.getCreatedAt(), testingUser.createdAt());
+        assertEquals(expectedUser.getId(), actualUser.id());
+        assertEquals(expectedUser.getUsername(), actualUser.username());
+        assertEquals(expectedUser.getEmail(), actualUser.email());
+        assertEquals(expectedUser.getPasswordHash(), actualUser.passwordHash());
+        assertEquals(expectedUser.getRole(), actualUser.role());
+        assertEquals(expectedUser.getCreatedAt(), actualUser.createdAt());
 
         verify(userRepository).existsByEmail(any(String.class));
         verify(userRepository).save(any(User.class));
@@ -73,7 +72,7 @@ class UserServiceTest {
             "email",
             "password",
             Role.USER,
-            LocalDate.of(2026, 3, 21));
+            LocalDateTime.of(2026, 3, 21, 14, 13));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> userService.createUser(userToCreate));

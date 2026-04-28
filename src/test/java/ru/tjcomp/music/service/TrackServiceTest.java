@@ -6,7 +6,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
+import java.nio.file.AccessDeniedException;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,35 +40,42 @@ class TrackServiceTest {
         Long userId = 2L;
         Long trackId = 3L;
         TrackDto trackToAdd = new TrackDto(null, userId, "Я смотрю аниме",
-            FILE_PATH, 314L, LocalDate.of(2026, 4, 21));
+            FILE_PATH, 314L, LocalDateTime.of(2026, 4, 21, 16, 24));
 
-        User user = new User(
-            userId,
-            "name",
-            "email",
-            "password",
-            Role.USER,
-            LocalDate.of(2026, 3, 21));
+        User user = User.builder()
+            .id(userId)
+            .username("name")
+            .email("email")
+            .passwordHash("password")
+            .role(Role.USER)
+            .createdAt(LocalDateTime.of(2026, 3, 21, 16, 24))
+            .build();
 
-        Track resultTrack = new Track(
-            trackId,
-            user,
-            trackToAdd.title(),
-            trackToAdd.filePath(),
-            trackToAdd.duration(),
-            trackToAdd.createdAt());
+        Track expectedTrack = Track.builder()
+            .id(trackId)
+            .author(user)
+            .title(trackToAdd.title())
+            .filePath(trackToAdd.filePath())
+            .duration(trackToAdd.duration())
+            .createdAt(trackToAdd.createdAt())
+            .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(trackRepository.save(any(Track.class))).thenReturn(resultTrack);
+        when(trackRepository.save(any(Track.class))).thenReturn(expectedTrack);
 
-        TrackDto testingTrack = trackService.addTrack(userId, trackToAdd);
+        TrackDto actualTrack;
+        try {
+            actualTrack = trackService.addTrack(userId, trackToAdd);
+        } catch (AccessDeniedException e) {
+            throw new RuntimeException(e);
+        }
 
-        assertEquals(resultTrack.getId(), testingTrack.id());
-        assertEquals(resultTrack.getUser().getId(), testingTrack.userId());
-        assertEquals(resultTrack.getTitle(), testingTrack.title());
-        assertEquals(resultTrack.getFilePath(), testingTrack.filePath());
-        assertEquals(resultTrack.getDuration(), testingTrack.duration());
-        assertEquals(resultTrack.getCreatedAt(), testingTrack.createdAt());
+        assertEquals(expectedTrack.getId(), actualTrack.id());
+        assertEquals(expectedTrack.getAuthor().getId(), actualTrack.userId());
+        assertEquals(expectedTrack.getTitle(), actualTrack.title());
+        assertEquals(expectedTrack.getFilePath(), actualTrack.filePath());
+        assertEquals(expectedTrack.getDuration(), actualTrack.duration());
+        assertEquals(expectedTrack.getCreatedAt(), actualTrack.createdAt());
 
         verify(userRepository).findById(userId);
         verify(trackRepository).save(any(Track.class));
@@ -77,7 +85,7 @@ class TrackServiceTest {
     void addTrack_IllegalArgumentException_WhenTrackIdNotNull() {
         Long userId = 1L;
         TrackDto trackToAdd = new TrackDto(1L, 3L, "Я смотрю аниме",
-            FILE_PATH, 314L, LocalDate.of(2026, 4, 21));
+            FILE_PATH, 314L, LocalDateTime.of(2026, 4, 21, 16, 24));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> trackService.addTrack(userId, trackToAdd));
@@ -92,7 +100,7 @@ class TrackServiceTest {
     void addTrack_IllegalArgumentException_WhenUserIdNull() {
         Long userId = null;
         TrackDto trackToAdd = new TrackDto(null, 3L, "Я смотрю аниме",
-            FILE_PATH, 314L, LocalDate.of(2026, 4, 21));
+            FILE_PATH, 314L, LocalDateTime.of(2026, 4, 21, 16, 24));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> trackService.addTrack(userId, trackToAdd));

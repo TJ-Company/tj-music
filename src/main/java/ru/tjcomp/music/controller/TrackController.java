@@ -1,6 +1,7 @@
 package ru.tjcomp.music.controller;
 
 import jakarta.validation.Valid;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -27,26 +28,30 @@ public class TrackController {
     @PostMapping("/{userId}")
     public ResponseEntity<TrackDto> addTrack(@PathVariable Long userId, @RequestBody @Valid TrackDto trackToAdd){
         log.info("addTrack run");
-        return ResponseEntity.status(201).body(trackService.addTrack(userId, trackToAdd));
+        try {
+            return ResponseEntity.status(201).body(trackService.addTrack(userId, trackToAdd));
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(403).build();
+        }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<TrackDto> getTrack(@PathVariable("id") Long id) {
+    @GetMapping("/{trackId}")
+    public ResponseEntity<TrackDto> getTrack(@PathVariable Long trackId) {
         log.info("getTrack run");
-        return ResponseEntity.status(200).body(trackService.getTrack(id));
+        return ResponseEntity.status(200).body(trackService.getTrack(trackId));
     }
 
     @GetMapping
-    public ResponseEntity<List<TrackDto>> getTrack() {
+    public ResponseEntity<List<TrackDto>> getAllTracks() {
         log.info("getTrack run");
         return ResponseEntity.status(200).body(trackService.getAllTracks());
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<TrackDto> updateTrack(@PathVariable Long id,
+    @PutMapping("/{trackId}")
+    public ResponseEntity<TrackDto> updateTrack(@PathVariable Long trackId,
         @RequestBody @Valid TrackDto trackToUpdate) {
         log.info("updateTrack run");
-        trackService.updateTrack(id, trackToUpdate);
+        trackService.updateTrack(trackId, trackToUpdate);
         return ResponseEntity.status(303).header("Redirection", "/tracks/success").build();
     }
 
@@ -55,10 +60,10 @@ public class TrackController {
         return ResponseEntity.status(200).body("successful update");
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTrack(@PathVariable Long id) {
+    @DeleteMapping("/{trackId}")
+    public ResponseEntity<Void> deleteTrack(@PathVariable Long trackId) {
         log.info("deleteTrack run");
-        trackService.deleteTrack(id);
+        trackService.deleteTrack(trackId);
         return ResponseEntity.ok().build();
     }
 }

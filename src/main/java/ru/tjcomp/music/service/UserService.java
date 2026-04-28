@@ -29,13 +29,14 @@ public class UserService {
     }
 
     private UserDto saveUser(UserDto userToCreate) {
-        User entityToSave = new User(
-            null,
-            userToCreate.username(),
-            userToCreate.email(),
-            userToCreate.passwordHash(),
-            userToCreate.role(),
-            userToCreate.createdAt());
+        User entityToSave = User.builder()
+            .id(null)
+            .username(userToCreate.username())
+            .email(userToCreate.email())
+            .passwordHash(userToCreate.passwordHash())
+            .role(userToCreate.role())
+            .createdAt(userToCreate.createdAt())
+            .build();
         User savedEntity = userRepository.save(entityToSave);
         return toUserDto(savedEntity);
     }
@@ -56,19 +57,21 @@ public class UserService {
             .orElseThrow(
                 () -> new EntityNotFoundException("Not found user by id = " + userId));
 
-        User entityToSave = new User(
-            userEntity.getId(),
-            userToUpdate.username(),
-            userToUpdate.email(),
-            userToUpdate.passwordHash(),
-            userToUpdate.role(),
-            userToUpdate.createdAt());
+        User entityToSave = User.builder()
+            .id(userEntity.getId())
+            .username(userToUpdate.username())
+            .email(userToUpdate.email())
+            .passwordHash(userToUpdate.passwordHash())
+            .role(userToUpdate.role())
+            .createdAt(userToUpdate.createdAt())
+            .build();
+
         User updatedUser = userRepository.save(entityToSave);
         return toUserDto(updatedUser);
     }
 
     public void deleteUser(Long userId) {
-        if (!userRepository.existsById(userId)){
+        if (!userRepository.existsById(userId)) {
             throw new EntityNotFoundException("Not found user by id = " + userId);
         }
         userRepository.deleteById(userId);

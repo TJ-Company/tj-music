@@ -18,3 +18,6 @@
 
 ## Как запустить? 
 > (Тут будут скрипты для поднятия проекта) 
+
+## Swagger UI
+http://localhost:8080/swagger-ui/index.html#/

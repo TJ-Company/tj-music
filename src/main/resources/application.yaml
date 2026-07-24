@@ -2,6 +2,13 @@ spring:
   application:
     name: music
 
+  datasource:
+    url: jdbc:postgresql://localhost:5678/music-db
+    username: postgres
+    password: root
+
+  jpa:
+    show-sql: true
 springdoc:
   swagger-ui:
     url: /openapi.yaml
